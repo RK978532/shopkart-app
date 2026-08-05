@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopKart — Sab Kuch Yahin Milega</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">Shop<span>Kart</span></div>
+  <div class="deliver">Deliver to<br><b>📍 Bharat, India</b></div>
+  <div class="searchbar">
+    <select id="catFilter"><option value="">Sabhi Categories</option></select>
+    <input id="searchInput" type="text" placeholder="Products dhundhein...">
+    <button onclick="doSearch()">🔍</button>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-item" onclick="openTrack()">Mere<br><b>Orders Dekhein</b></div>
+    <div class="cart-icon" onclick="openCart()">🛒<span class="cart-count" id="cartCount">0</span> Cart</div>
+    <a href="/admin" class="admin-link">Admin Panel</a>
+  </div>
+</div>
+
+<div class="promo-strip" id="promoStrip"></div>
+
+<div class="catnav" id="catNav"></div>
+
+<div class="hero-carousel" id="heroCarousel"></div>
+
+<div class="container">
+  <div id="productsBySection">Loading...</div>
+</div>
+
+<footer>
+  <div class="flogo">Shop<span>Kart</span></div>
+  <p>Demo store — jo products aur banner Admin Panel se add/edit hote hain, wahi yahan dikhte hain.</p>
+  <p style="margin-top:6px;">© 2026 ShopKart. Backend: Node.js + Express, data server par save hota hai.</p>
+</footer>
+
+<!-- Product Detail Modal -->
+<div class="overlay" id="productOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Cart Drawer -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-head"><h3>Aapka Cart</h3><button onclick="closeCart()">✕</button></div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer">
+    <div class="cart-total"><span>Total:</span><span id="cartTotal">₹0</span></div>
+    <button class="checkout-btn" onclick="showCheckoutForm()">Checkout Karein</button>
+  </div>
+  <div class="checkout-form hidden" id="checkoutForm">
+    <label>Poora Naam</label>
+    <input type="text" id="ckName" placeholder="Aapka naam">
+    <label>Phone Number</label>
+    <input type="text" id="ckPhone" placeholder="10-digit mobile number">
+    <label>Delivery Address</label>
+    <textarea id="ckAddress" rows="2" placeholder="Poora address"></textarea>
+    <button class="checkout-btn" onclick="placeOrder()">✅ Order Confirm Karein</button>
+  </div>
+</div>
+
+<!-- Track Orders Modal -->
+<div class="overlay" id="trackOverlay">
+  <div class="modal" style="max-width:500px;">
+    <button class="modal-close" onclick="closeTrack()">✕</button>
+    <h2 style="margin-bottom:14px;">Mere Orders</h2>
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <input type="text" id="trackPhone" placeholder="Apna phone number daalein" style="flex:1;padding:9px;border:1px solid #ccc;border-radius:4px;">
+      <button class="btn-primary" onclick="trackOrders()">Dekhein</button>
+    </div>
+    <div id="trackResults"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/store.js"></script>
+</body>
+</html>

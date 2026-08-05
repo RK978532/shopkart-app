@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopKart Admin</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="adminGate">
+  <div class="topbar" style="justify-content:space-between;">
+    <div class="logo">Shop<span>Kart</span> Admin</div>
+    <a href="/" class="admin-link">← Store par wapas</a>
+  </div>
+  <div class="admin-gate">
+    <h2>🔐 Admin Login</h2>
+    <p style="color:var(--muted);font-size:13px;margin-top:8px;">Default -> username: <b>admin</b>, password: <b>admin123</b></p>
+    <input type="text" id="adminUser" placeholder="Username" value="admin">
+    <input type="password" id="adminPass" placeholder="Password" onkeydown="if(event.key==='Enter')tryAdminLogin()">
+    <button onclick="tryAdminLogin()">Login</button>
+    <div class="admin-err hidden" id="adminErr"></div>
+  </div>
+</div>
+
+<div id="adminPanel" class="hidden">
+  <div class="topbar" style="justify-content:space-between;">
+    <div class="logo">Shop<span>Kart</span> Admin</div>
+    <div style="display:flex;gap:10px;">
+      <a href="/" class="admin-link">🏬 Store dekhein</a>
+      <a href="#" class="admin-link" onclick="adminLogout(event)">🚪 Logout</a>
+    </div>
+  </div>
+  <div class="admin-wrap">
+    <div class="admin-head"><h2>Admin Dashboard</h2></div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="products" onclick="switchTab('products')">📦 Products</button>
+      <button class="admin-tab" data-tab="categories" onclick="switchTab('categories')">🏷️ Categories</button>
+      <button class="admin-tab" data-tab="banner" onclick="switchTab('banner')">🖼️ Banners</button>
+      <button class="admin-tab" data-tab="promo" onclick="switchTab('promo')">📢 Offers / Ads</button>
+      <button class="admin-tab" data-tab="display" onclick="switchTab('display')">⚙️ Display Size</button>
+      <button class="admin-tab" data-tab="orders" onclick="switchTab('orders')">📜 Order History</button>
+    </div>
+
+    <!-- Products -->
+    <div class="admin-panel-section active" id="tab-products">
+      <div class="admin-card">
+        <h3 id="prodFormTitle" style="margin-bottom:14px;">Naya Product Add Karein</h3>
+        <input type="hidden" id="editProductId">
+        <div class="form-grid">
+          <div class="form-row"><label>Product Naam</label><input type="text" id="pName" placeholder="e.g. Wireless Headphones"></div>
+          <div class="form-row"><label>Category</label><select id="pCategory"></select></div>
+          <div class="form-row"><label>Price (₹)</label><input type="number" id="pPrice" placeholder="e.g. 1499"></div>
+          <div class="form-row"><label>MRP (₹) — optional</label><input type="number" id="pMrp" placeholder="e.g. 2499"></div>
+          <div class="form-row"><label>Rating (1-5)</label><input type="number" id="pRating" min="1" max="5" step="0.1" placeholder="e.g. 4.3"></div>
+          <div class="form-row"><label>Reviews count</label><input type="number" id="pReviews" placeholder="e.g. 1250"></div>
+          <div class="form-row"><label>Badge (optional)</label><input type="text" id="pBadge" placeholder="Bestseller / New / Sale"></div>
+        </div>
+        <div class="form-row">
+          <label>Product Photo</label>
+          <input type="hidden" id="pImageCurrent">
+          <div class="upload-box">
+            <input type="file" id="pImageFile" accept="image/*" onchange="previewFile('pImageFile','pImagePreview')">
+            <img id="pImagePreview" class="upload-preview">
+          </div>
+        </div>
+        <div class="form-row"><label>Description</label><textarea id="pDesc" rows="3"></textarea></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-primary" onclick="saveProduct()">💾 Save Karein</button>
+          <button class="btn-secondary hidden" id="cancelEditBtn" onclick="resetProductForm()">Cancel</button>
+        </div>
+      </div>
+      <div class="admin-card">
+        <h3 style="margin-bottom:14px;">Sabhi Products (<span id="prodCount">0</span>)</h3>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Image</th><th>Naam</th><th>Category</th><th>Price</th><th>Rating</th><th>Actions</th></tr></thead>
+            <tbody id="adminProductBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-note hidden" id="noProductsNote">Koi product nahi hai.</div>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="admin-panel-section" id="tab-categories">
+      <div class="admin-card">
+        <h3 style="margin-bottom:14px;">Category Add Karein</h3>
+        <div style="display:flex;gap:10px;">
+          <input type="text" id="newCatName" placeholder="e.g. Electronics" style="flex:1;padding:9px 11px;border:1px solid #ccc;border-radius:5px;">
+          <button class="btn-primary" onclick="addCategory()">+ Add</button>
+        </div>
+      </div>
+      <div class="admin-card"><h3 style="margin-bottom:14px;">Sabhi Categories</h3><div id="catChipsWrap"></div></div>
+    </div>
+
+    <!-- Banners (multiple, jaise Amazon ka rotating carousel) -->
+    <div class="admin-panel-section" id="tab-banner">
+      <div class="admin-card">
+        <h3 id="slideFormTitle" style="margin-bottom:14px;">Naya Banner Add Karein</h3>
+        <input type="hidden" id="editSlideId">
+        <div class="form-row">
+          <label>Banner Photo</label>
+          <input type="hidden" id="sImageCurrent">
+          <div class="upload-box">
+            <input type="file" id="sImageFile" accept="image/*" onchange="previewFile('sImageFile','sImagePreview')">
+            <img id="sImagePreview" class="upload-preview">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-row"><label>Heading</label><input type="text" id="sTitle" placeholder="e.g. Bade Deals, Bade Discounts"></div>
+          <div class="form-row"><label>Sub-text</label><input type="text" id="sSub" placeholder="e.g. Sabse sasta sirf ShopKart par"></div>
+          <div class="form-row">
+            <label>Banner Size</label>
+            <select id="sHeight">
+              <option value="small">Chota (Small)</option>
+              <option value="medium" selected>Medium</option>
+              <option value="large">Bada (Large)</option>
+            </select>
+          </div>
+          <div class="form-row"><label>Order (chota number pehle dikhega)</label><input type="number" id="sOrder" value="0"></div>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-primary" onclick="saveSlide()">💾 Banner Save Karein</button>
+          <button class="btn-secondary hidden" id="cancelSlideEditBtn" onclick="resetSlideForm()">Cancel</button>
+        </div>
+      </div>
+      <div class="admin-card">
+        <h3 style="margin-bottom:14px;">Sabhi Banners</h3>
+        <div class="slide-list" id="slideList"></div>
+        <div class="empty-note hidden" id="noSlidesNote">Koi banner nahi hai.</div>
+      </div>
+    </div>
+
+    <!-- Offers / Ads strip -->
+    <div class="admin-panel-section" id="tab-promo">
+      <div class="admin-card">
+        <h3 style="margin-bottom:14px;">Offer / Ad Text Add Karein</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Yeh text homepage ke top par ek rotating strip mein dikhta hai — jaise "Free Delivery" ya kisi sale ka ad.</p>
+        <div style="display:flex;gap:10px;">
+          <input type="text" id="newPromoText" placeholder="e.g. 🎉 Diwali Sale — 50% tak off" style="flex:1;padding:9px 11px;border:1px solid #ccc;border-radius:5px;">
+          <button class="btn-primary" onclick="addPromo()">+ Add</button>
+        </div>
+      </div>
+      <div class="admin-card">
+        <h3 style="margin-bottom:14px;">Sabhi Offers / Ads</h3>
+        <div class="promo-list" id="promoList"></div>
+        <div class="empty-note hidden" id="noPromoNote">Koi offer/ad nahi hai.</div>
+      </div>
+    </div>
+
+    <!-- Display Size settings -->
+    <div class="admin-panel-section" id="tab-display">
+      <div class="admin-card">
+        <h3 style="margin-bottom:14px;">Product Image Size</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Yeh size sabhi product cards par ek saath apply hota hai (homepage grid mein).</p>
+        <div class="form-row" style="max-width:300px;">
+          <label>Height (px)</label>
+          <input type="number" id="setImgHeight" min="80" max="400" placeholder="e.g. 150">
+        </div>
+        <button class="btn-primary" onclick="saveDisplaySettings()">💾 Save Karein</button>
+      </div>
+    </div>
+
+    <!-- Orders / History -->
+    <div class="admin-panel-section" id="tab-orders">
+      <div class="admin-card">
+        <h3 style="margin-bottom:14px;">Order History (<span id="orderCount">0</span>)</h3>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Order ID</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody id="adminOrderBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-note hidden" id="noOrdersNote">Abhi tak koi order nahi aaya.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="js/admin.js"></script>
+</body>
+</html>
